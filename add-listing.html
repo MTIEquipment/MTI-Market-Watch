@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MTI Equipment — Add a Listing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#17191a; --panel:#21262a; --panel-raised:#262c30; --line:#383f43;
+    --paper:#e9e4d8; --paper-dim:#a39c8f;
+    --yellow:#f2b705; --yellow-dim:#8a6d0e; --rust:#c1441e;
+    --font-display:'Oswald',sans-serif; --font-body:'IBM Plex Sans',sans-serif; --font-mono:'IBM Plex Mono',monospace;
+    --radius:3px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--paper); font-family:var(--font-body);
+    font-size:15px; line-height:1.5;
+  }
+  a{color:var(--yellow);}
+  :focus-visible{outline:2px solid var(--yellow); outline-offset:2px;}
+  .wrap{max-width:760px; margin:0 auto; padding:28px 20px 80px;}
+  h1{
+    font-family:var(--font-display); font-weight:700; text-transform:uppercase;
+    letter-spacing:0.02em; font-size:clamp(24px,5vw,34px); margin:0 0 2px; line-height:1.1;
+  }
+  h1 span{color:var(--yellow);}
+  .sub{font-family:var(--font-mono); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--paper-dim); margin-bottom:22px;}
+  .back{display:inline-block; margin-bottom:18px; font-family:var(--font-mono); font-size:12px; color:var(--paper-dim); text-decoration:none;}
+  .back:hover{color:var(--yellow);}
+
+  .step{border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:18px 20px; margin-bottom:16px;}
+  .step h2{
+    font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:0.1em;
+    color:var(--yellow); margin:0 0 12px; display:flex; align-items:center; gap:8px;
+  }
+  .step h2 .n{
+    display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px;
+    border:1px solid var(--yellow-dim); border-radius:50%; font-size:10px; color:var(--yellow);
+  }
+  .step p.hint{color:var(--paper-dim); font-size:12.5px; margin:4px 0 0;}
+
+  label{display:block; font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--paper-dim); margin:14px 0 5px;}
+  label:first-of-type{margin-top:0;}
+  input[type=text], input[type=url], select, textarea{
+    width:100%; font-family:var(--font-body); font-size:14px; color:var(--paper);
+    background:var(--bg); border:1px solid var(--line); border-radius:var(--radius); padding:9px 11px;
+  }
+  input:focus, select:focus, textarea:focus{border-color:var(--yellow);}
+  textarea{font-family:var(--font-mono); font-size:12.5px; resize:vertical;}
+  #paste-current{height:70px;}
+  #output{height:220px;}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .warn{
+    display:none; margin-top:8px; font-size:12.5px; color:#ffb37a; background:rgba(193,68,30,0.12);
+    border:1px solid #7a3016; border-radius:var(--radius); padding:8px 10px;
+  }
+  button{
+    font-family:var(--font-mono); font-size:12.5px; text-transform:uppercase; letter-spacing:0.06em;
+    font-weight:600; border-radius:2px; padding:10px 16px; border:1px solid transparent; cursor:pointer;
+  }
+  .btn-primary{background:var(--yellow); color:var(--bg); margin-top:16px;}
+  .btn-primary:hover{background:#ffce33;}
+  .btn-secondary{background:transparent; color:var(--paper); border-color:var(--line);}
+  .btn-secondary:hover{border-color:var(--paper-dim);}
+  .out-actions{display:flex; gap:8px; align-items:center; margin-top:10px;}
+  .out-actions .msg{font-family:var(--font-mono); font-size:11.5px; color:var(--yellow);}
+  .count-tag{font-family:var(--font-mono); font-size:11.5px; color:var(--paper-dim); margin-top:6px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">← Back to dashboard</a>
+  <h1>Add a <span>Listing</span></h1>
+  <div class="sub">Turn something you found on MachineryTrader or EquipmentTrader into text you paste into GitHub</div>
+
+  <div class="step">
+    <h2><span class="n">1</span> Paste what's already in your file</h2>
+    <p class="hint" style="margin-bottom:8px;">Open <code>data/manual-listings.json</code> in your GitHub repo and paste its
+      whole content below. First time doing this? Leave it as <code>[]</code>.</p>
+    <textarea id="paste-current">[]</textarea>
+  </div>
+
+  <div class="step">
+    <h2><span class="n">2</span> Fill in the listing</h2>
+    <label for="f-source">Source *</label>
+    <select id="f-source">
+      <option value="MachineryTrader">MachineryTrader</option>
+      <option value="EquipmentTrader">EquipmentTrader</option>
+    </select>
+
+    <label for="f-title">Title *</label>
+    <input type="text" id="f-title" placeholder="2019 Vermeer D24x40 S3">
+
+    <div class="row2">
+      <div>
+        <label for="f-mfr">Manufacturer</label>
+        <input type="text" id="f-mfr" placeholder="Vermeer">
+      </div>
+      <div>
+        <label for="f-price">Price</label>
+        <input type="text" id="f-price" placeholder="$185,000 or Call for pricing">
+      </div>
+    </div>
+
+    <label for="f-cat">Category</label>
+    <input type="text" id="f-cat" list="cat-options" placeholder="HDD Drills">
+    <datalist id="cat-options">
+      <option value="HDD Drills"><option value="Trenchers"><option value="Plows">
+      <option value="Electronics / Locators"><option value="Auger Boring / Tunnelling">
+      <option value="Vacuum Systems"><option value="Mud Mixing Systems / Tanks">
+      <option value="Mud Recycling Systems"><option value="Other">
+    </datalist>
+
+    <label for="f-url">Listing URL *</label>
+    <input type="url" id="f-url" placeholder="https://www.machinerytrader.com/listings/view/...">
+    <div class="warn" id="url-warn">That looks like it might be a search or category page rather than
+      one specific machine — double-check you've copied the link for the individual listing, or its
+      link on your page won't go anywhere useful.</div>
+
+    <label for="f-notes">Notes (optional)</label>
+    <textarea id="f-notes" style="height:60px;" placeholder="Anything worth remembering about this one"></textarea>
+
+    <button class="btn-primary" id="add-btn" type="button">Add to list ↓</button>
+  </div>
+
+  <div class="step">
+    <h2><span class="n">3</span> Copy the result into GitHub</h2>
+    <p class="hint" style="margin-bottom:8px;">This replaces the <strong>entire</strong> content of
+      <code>data/manual-listings.json</code> — select all the old text in that file before pasting this in.</p>
+    <textarea id="output" readonly></textarea>
+    <div class="out-actions">
+      <button class="btn-secondary" id="copy-btn" type="button">Copy</button>
+      <button class="btn-secondary" id="reset-btn" type="button">Clear form, keep list</button>
+      <span class="msg" id="copy-msg"></span>
+    </div>
+    <div class="count-tag" id="count-tag"></div>
+  </div>
+</div>
+
+<script>
+let list = [];
+
+function todayStr(){
+  return new Date().toISOString().slice(0,10);
+}
+
+function refreshOutput(){
+  document.getElementById('output').value = JSON.stringify(list, null, 2);
+  document.getElementById('count-tag').textContent =
+    list.length + ' listing' + (list.length === 1 ? '' : 's') + ' in this list';
+}
+
+document.getElementById('f-url').addEventListener('input', e => {
+  const v = e.target.value.toLowerCase();
+  const looksGeneric = /search|category|equipment-for-sale\/?$|for-sale\/?$/.test(v) && v.length > 0;
+  document.getElementById('url-warn').style.display = looksGeneric ? 'block' : 'none';
+});
+
+document.getElementById('add-btn').addEventListener('click', () => {
+  const pasteBox = document.getElementById('paste-current');
+  if(list.length === 0){
+    try{
+      const parsed = JSON.parse(pasteBox.value.trim() || '[]');
+      if(Array.isArray(parsed)) list = parsed;
+    }catch(err){
+      alert("The text pasted in step 1 isn't valid JSON, so I can't safely add to it without " +
+            "risking breaking your file. Double-check it's an exact copy of what's in " +
+            "data/manual-listings.json, or leave it as [] if this is your first entry.");
+      return;
+    }
+  }
+
+  const title = document.getElementById('f-title').value.trim();
+  const url = document.getElementById('f-url').value.trim();
+  if(!title || !url){
+    alert('Title and Listing URL are required.');
+    return;
+  }
+
+  list.push({
+    source: document.getElementById('f-source').value,
+    title: title,
+    manufacturer: document.getElementById('f-mfr').value.trim() || null,
+    category: document.getElementById('f-cat').value.trim() || 'Other',
+    price_display: document.getElementById('f-price').value.trim() || 'See listing',
+    url: url,
+    notes: document.getElementById('f-notes').value.trim() || '',
+    added_date: todayStr(),
+  });
+
+  refreshOutput();
+  ['f-title','f-mfr','f-price','f-cat','f-url','f-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('url-warn').style.display = 'none';
+  document.getElementById('copy-msg').textContent = 'Added — fill in another, or copy the result below.';
+});
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+  ['f-title','f-mfr','f-price','f-cat','f-url','f-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('copy-msg').textContent = '';
+});
+
+document.getElementById('copy-btn').addEventListener('click', async () => {
+  const out = document.getElementById('output');
+  out.select();
+  try{
+    await navigator.clipboard.writeText(out.value);
+    document.getElementById('copy-msg').textContent = 'Copied!';
+  }catch(err){
+    document.getElementById('copy-msg').textContent = 'Couldn\'t auto-copy — text is selected, use Ctrl/Cmd+C.';
+  }
+});
+
+refreshOutput();
+</script>
+</body>
+</html>

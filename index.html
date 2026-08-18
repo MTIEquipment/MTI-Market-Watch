@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MTI Equipment — Market Watch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#17191a; --panel:#21262a; --panel-raised:#262c30; --line:#383f43;
+    --paper:#e9e4d8; --paper-dim:#a39c8f;
+    --yellow:#f2b705; --yellow-dim:#8a6d0e; --rust:#c1441e; --rust-dim:#7a3016;
+    --font-display:'Oswald',sans-serif; --font-body:'IBM Plex Sans',sans-serif; --font-mono:'IBM Plex Mono',monospace;
+    --radius:3px;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0; background:var(--bg); color:var(--paper);
+    font-family:var(--font-body); font-size:15px; line-height:1.5;
+    background-image:
+      radial-gradient(ellipse at top left, rgba(242,183,5,0.05), transparent 45%),
+      radial-gradient(ellipse at bottom right, rgba(193,68,30,0.05), transparent 50%);
+  }
+  a{color:var(--yellow);}
+  ::selection{background:var(--yellow); color:#17191a;}
+  :focus-visible{outline:2px solid var(--yellow); outline-offset:2px;}
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important;} }
+
+  .wrap{max-width:1180px; margin:0 auto; padding:28px 20px 80px;}
+
+  /* ---- masthead ---- */
+  .masthead{
+    display:flex; justify-content:space-between; align-items:flex-end; gap:20px;
+    border-bottom:3px solid var(--paper); padding-bottom:16px; margin-bottom:22px;
+    flex-wrap:wrap;
+  }
+  .masthead h1{
+    font-family:var(--font-display); font-weight:700; text-transform:uppercase;
+    letter-spacing:0.02em; font-size:clamp(28px,5vw,44px); margin:0; line-height:1;
+  }
+  .masthead h1 span{color:var(--yellow);}
+  .masthead .sub{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.12em;
+    text-transform:uppercase; color:var(--paper-dim); margin-top:6px;
+  }
+  .synced{
+    font-family:var(--font-mono); font-size:12px; text-align:right; color:var(--paper-dim);
+    border:1px solid var(--line); border-radius:var(--radius); padding:8px 12px;
+    background:var(--panel);
+  }
+  .synced strong{display:block; color:var(--paper); font-size:13px; letter-spacing:0.03em;}
+
+  /* ---- stat plates ---- */
+  .stats{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px;
+  }
+  .plate{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:14px 16px; box-shadow:inset 0 0 0 1px rgba(255,255,255,0.02), inset 0 2px 4px rgba(0,0,0,0.35);
+    position:relative;
+  }
+  .plate::before{
+    content:""; position:absolute; top:6px; right:6px; width:5px; height:5px;
+    border-radius:50%; background:var(--line); box-shadow:0 0 0 1px rgba(0,0,0,0.4) inset;
+  }
+  .plate .num{font-family:var(--font-mono); font-weight:600; font-size:30px; line-height:1; color:var(--paper);}
+  .plate .num.accent{color:var(--yellow);}
+  .plate .num.warn{color:var(--rust);}
+  .plate .label{
+    font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase;
+    letter-spacing:0.1em; color:var(--paper-dim); margin-top:6px;
+  }
+  .plate .fallback-tag{
+    font-size:9.5px; color:var(--paper-dim); font-style:italic; margin-top:2px; display:block;
+  }
+
+  /* ---- filters ---- */
+  .filters{
+    display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:16px;
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:10px;
+  }
+  .filters select, .filters input[type="search"]{
+    font-family:var(--font-body); font-size:13px; color:var(--paper);
+    background:var(--bg); border:1px solid var(--line); border-radius:var(--radius);
+    padding:8px 10px; min-width:0;
+  }
+  .filters input[type="search"]{flex:1 1 200px;}
+  .filters select{flex:0 1 auto;}
+  .filters select:focus, .filters input:focus{border-color:var(--yellow);}
+  .filters .count{
+    margin-left:auto; font-family:var(--font-mono); font-size:12px; color:var(--paper-dim);
+    white-space:nowrap;
+  }
+
+  /* ---- ledger ---- */
+  .ledger{border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; margin-bottom:32px;}
+  .ledger-head, .row{
+    display:grid;
+    grid-template-columns: 96px 1.15fr 140px 90px 130px 28px;
+    gap:10px; align-items:center; padding:11px 14px;
+  }
+  .ledger-head{
+    background:var(--panel-raised); font-family:var(--font-mono); font-size:10.5px;
+    text-transform:uppercase; letter-spacing:0.08em; color:var(--paper-dim);
+    border-bottom:1px solid var(--line);
+  }
+  .row{
+    background:var(--panel); border-bottom:1px solid var(--line); text-decoration:none; color:inherit;
+  }
+  .row:last-child{border-bottom:none;}
+  .row:hover{background:var(--panel-raised);}
+  .badge{
+    font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:0.06em;
+    padding:3px 7px; border-radius:2px; text-align:center; white-space:nowrap; justify-self:start;
+    border:1px solid transparent;
+  }
+  .badge.new{color:var(--yellow); border-color:var(--yellow-dim); background:rgba(242,183,5,0.08);}
+  .badge.reduced{color:#ff8a65; border-color:var(--rust-dim); background:rgba(193,68,30,0.12);}
+  .badge.updated{color:var(--paper-dim); border-color:var(--line);}
+  .badge.none{visibility:hidden;}
+  .machine .src{
+    font-family:var(--font-mono); font-size:9.5px; text-transform:uppercase; letter-spacing:0.09em;
+    color:var(--paper-dim); display:block; margin-bottom:2px;
+  }
+  .machine .src.manual{color:var(--yellow);}
+  .machine .title{font-weight:500; color:var(--paper); display:block;}
+  .machine .desc{font-size:12px; color:var(--paper-dim); display:block; margin-top:2px;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .machine .ref{font-family:var(--font-mono); font-size:10.5px; color:var(--paper-dim);}
+  .cat-pill{
+    font-family:var(--font-mono); font-size:10.5px; color:var(--paper-dim);
+    border:1px solid var(--line); border-radius:12px; padding:3px 9px; text-align:center;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .hours{font-family:var(--font-mono); font-size:13px; text-align:right; color:var(--paper-dim);}
+  .price{font-family:var(--font-mono); font-size:13.5px; font-weight:600; text-align:right;}
+  .price.reduced{color:#ff8a65;}
+  .go{color:var(--paper-dim); text-align:center;}
+  .row:hover .go{color:var(--yellow);}
+
+  #empty-state{padding:40px 20px; text-align:center; color:var(--paper-dim); font-family:var(--font-mono); font-size:13px;}
+  #empty-state strong{display:block; color:var(--paper); font-family:var(--font-body); font-size:16px; margin-bottom:6px;}
+
+  /* ---- other marketplaces ---- */
+  .other-sources{
+    border:1px dashed var(--line); border-radius:var(--radius); padding:18px 20px; margin-bottom:20px;
+  }
+  .other-sources h2{
+    font-family:var(--font-display); text-transform:uppercase; letter-spacing:0.04em;
+    font-size:15px; margin:0 0 4px;
+  }
+  .other-sources > p{color:var(--paper-dim); font-size:13px; margin:0 0 14px; max-width:640px;}
+  .source-cards{display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:12px;}
+  .source-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px;
+  }
+  .source-card h3{font-size:14px; margin:0 0 6px;}
+  .source-card p{font-size:12.5px; color:var(--paper-dim); margin:0 0 10px;}
+  .source-card a.btn{
+    display:inline-block; font-family:var(--font-mono); font-size:11.5px; text-transform:uppercase;
+    letter-spacing:0.06em; color:var(--bg); background:var(--yellow); padding:7px 12px;
+    border-radius:2px; text-decoration:none; font-weight:600;
+  }
+
+  footer{font-family:var(--font-mono); font-size:11px; color:var(--paper-dim); text-align:center; margin-top:10px;}
+
+  /* ---- mobile ---- */
+  @media (max-width:760px){
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .ledger-head{display:none;}
+    .row{
+      grid-template-columns:1fr; padding:12px 14px; gap:6px; position:relative;
+    }
+    .badge{position:absolute; top:12px; right:14px; justify-self:end;}
+    .machine{padding-right:70px;}
+    .cat-pill{justify-self:start;}
+    .hours, .price{text-align:left;}
+    .price{font-size:16px;}
+    .go{display:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div>
+      <h1>MTI <span>Equipment</span></h1>
+      <div class="sub">Market Watch — Trenchless &amp; Directional Drilling Inventory</div>
+    </div>
+    <div class="synced">
+      <strong id="synced-time">—</strong>
+      LAST SYNCED
+    </div>
+  </header>
+
+  <section class="stats" aria-label="Summary">
+    <div class="plate">
+      <div class="num" id="stat-total">—</div>
+      <div class="label">Tracked Listings</div>
+    </div>
+    <div class="plate">
+      <div class="num accent" id="stat-new">—</div>
+      <div class="label">New<span class="fallback-tag" id="new-fallback-tag" hidden>Per HDDBroker tag, first run</span></div>
+    </div>
+    <div class="plate">
+      <div class="num warn" id="stat-drops">—</div>
+      <div class="label">Price Drops<span class="fallback-tag" id="drop-fallback-tag" hidden>Per HDDBroker tag, first run</span></div>
+    </div>
+    <div class="plate">
+      <div class="num" id="stat-removed">—</div>
+      <div class="label">Sold / Removed</div>
+    </div>
+  </section>
+
+  <section class="filters" aria-label="Filter listings">
+    <input type="search" id="f-search" placeholder="Search make, model, ref #…" aria-label="Search listings">
+    <select id="f-source" aria-label="Filter by source"><option value="">All sources</option></select>
+    <select id="f-category" aria-label="Filter by category"><option value="">All categories</option></select>
+    <select id="f-manufacturer" aria-label="Filter by manufacturer"><option value="">All manufacturers</option></select>
+    <select id="f-status" aria-label="Filter by status">
+      <option value="">Any status</option>
+      <option value="New">New</option>
+      <option value="Price Reduced">Price Reduced</option>
+      <option value="Updated">Updated</option>
+    </select>
+    <select id="f-sort" aria-label="Sort listings">
+      <option value="ref-desc">Newest listing</option>
+      <option value="price-asc">Price: low to high</option>
+      <option value="price-desc">Price: high to low</option>
+      <option value="hours-asc">Hours: low to high</option>
+      <option value="year-desc">Year: newest first</option>
+    </select>
+    <span class="count" id="result-count"></span>
+  </section>
+
+  <main class="ledger" id="ledger">
+    <div class="ledger-head">
+      <div>Status</div><div>Machine</div><div>Category</div><div style="text-align:right;">Hours</div>
+      <div style="text-align:right;">Price</div><div></div>
+    </div>
+    <div id="listings"></div>
+    <div id="empty-state" hidden>
+      <strong>Nothing matches those filters.</strong>
+      Try clearing the search box or switching category back to "All categories."
+    </div>
+  </main>
+
+  <section class="other-sources">
+    <h2>Other Marketplaces</h2>
+    <p>MachineryTrader and EquipmentTrader both block automated scraping in their terms of use, so
+       nothing visits those sites on its own. Two ways to still see their inventory here: set up
+       their native alerts (they'll email or text you), or when you spot something worth tracking
+       while browsing yourself, add it with the tool below — those show up tagged
+       "<strong>MachineryTrader</strong>" / "<strong>EquipmentTrader</strong>" right in the list above.</p>
+    <div class="source-cards">
+      <div class="source-card">
+        <h3>MachineryTrader.com</h3>
+        <p>Log in → click your account name → <strong>Alerts For New Listings</strong>. Set year,
+           hours, price and distance ranges, or use <strong>Save This Search</strong> /
+           <strong>Watch List</strong> for price-drop pings on items you're already tracking.</p>
+        <a class="btn" href="https://www.machinerytrader.com/listings/search?keywords=directional+drill" target="_blank" rel="noopener">Open Search ↗</a>
+      </div>
+      <div class="source-card">
+        <h3>EquipmentTrader.com</h3>
+        <p>Their price-alert toggle lives right on the search results page — turn it on for any
+           saved search and you'll be notified as matching inventory comes in.</p>
+        <a class="btn" href="https://www.equipmenttrader.com/advanced-search" target="_blank" rel="noopener">Open Search ↗</a>
+      </div>
+      <div class="source-card">
+        <h3>Add one you found</h3>
+        <p>Spotted something on either site worth tracking? Fill in a quick form and paste the
+           result into <code>data/manual-listings.json</code> — it'll appear right in the list above.</p>
+        <a class="btn" href="add-listing.html" target="_blank" rel="noopener">Add a Listing ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>MTI Equipment internal tool · HDDBroker.com data scraped once daily, MachineryTrader/EquipmentTrader entries added by hand · for internal market monitoring only, not for redistribution</footer>
+
+</div>
+
+<script>
+function normalizeManual(m){
+  return {
+    ref_id: m.ref_id || null,
+    year: m.year || null,
+    manufacturer: m.manufacturer || null,
+    model: m.model || null,
+    title: m.title || 'Untitled listing',
+    category: m.category || 'Uncategorized',
+    description: m.description || '',
+    hours: m.hours || null,
+    price_usd: m.price_usd || null,
+    price_display: m.price_display || 'See listing',
+    status: m.status || null,
+    url: m.url || '#',
+    source: m.source || 'Other',
+    added_date: m.added_date || null,
+  };
+}
+
+async function init(){
+  const listingsEl = document.getElementById('listings');
+  const emptyEl = document.getElementById('empty-state');
+  let data, auto, manual = [];
+
+  try{
+    const res = await fetch('data/latest.json', {cache:'no-store'});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    data = await res.json();
+    auto = (data.listings || []).map(l => ({...l, source: 'HDDBroker'}));
+  }catch(err){
+    document.getElementById('ledger').innerHTML =
+      '<div id="empty-state"><strong>Couldn\'t load HDDBroker listing data.</strong>' +
+      'Make sure data/latest.json exists next to this page, and that you\'re viewing it ' +
+      'through a web server (not opened directly as a file) — running <code>python3 -m ' +
+      'http.server</code> in this folder and visiting localhost works for a local check. ' +
+      'On GitHub Pages this loads automatically once the first scrape has run.</div>';
+    return;
+  }
+
+  try{
+    const res2 = await fetch('data/manual-listings.json', {cache:'no-store'});
+    if(res2.ok){
+      const raw = await res2.json();
+      manual = (raw || []).map(normalizeManual);
+    }
+  }catch(err){
+    // no manual-listings.json yet, or it's empty -- that's fine, just nothing to add
+  }
+
+  const listings = [...auto, ...manual];
+  const changes = data.changes_since_last_run || {new_ids:[], removed_ids:[], price_drop_ids:[], price_increase_ids:[]};
+
+  // ---- header stats ----
+  document.getElementById('stat-total').textContent = listings.length;
+
+  const syncedDate = data.last_updated ? new Date(data.last_updated) : null;
+  document.getElementById('synced-time').textContent = syncedDate
+    ? syncedDate.toLocaleString(undefined, {dateStyle:'medium', timeStyle:'short'})
+    : 'Unknown';
+
+  const usingFallback = changes.new_ids.length === 0 && changes.price_drop_ids.length === 0;
+  const newCount = changes.new_ids.length || listings.filter(l => l.status === 'New').length;
+  const dropCount = changes.price_drop_ids.length || listings.filter(l => l.status === 'Price Reduced').length;
+  document.getElementById('stat-new').textContent = newCount;
+  document.getElementById('stat-drops').textContent = dropCount;
+  document.getElementById('stat-removed').textContent = changes.removed_ids.length;
+  document.getElementById('new-fallback-tag').hidden = !usingFallback;
+  document.getElementById('drop-fallback-tag').hidden = !usingFallback;
+
+  // ---- populate filter dropdowns from the data itself ----
+  const sources = [...new Set(listings.map(l => l.source).filter(Boolean))].sort();
+  const categories = [...new Set(listings.map(l => l.category).filter(Boolean))].sort();
+  const manufacturers = [...new Set(listings.map(l => l.manufacturer).filter(Boolean))].sort();
+  const srcSel = document.getElementById('f-source');
+  const catSel = document.getElementById('f-category');
+  const mfrSel = document.getElementById('f-manufacturer');
+  sources.forEach(s => srcSel.insertAdjacentHTML('beforeend', `<option value="${esc(s)}">${esc(s)}</option>`));
+  categories.forEach(c => catSel.insertAdjacentHTML('beforeend', `<option value="${esc(c)}">${esc(c)}</option>`));
+  manufacturers.forEach(m => mfrSel.insertAdjacentHTML('beforeend', `<option value="${esc(m)}">${esc(m)}</option>`));
+
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function badgeClass(status){
+    if(status === 'New') return 'new';
+    if(status === 'Price Reduced') return 'reduced';
+    if(status === 'Updated') return 'updated';
+    return 'none';
+  }
+
+  function hoursOrAdded(l){
+    if(l.hours != null) return l.hours.toLocaleString()+' hrs';
+    if(l.source !== 'HDDBroker' && l.added_date) return 'Added '+esc(l.added_date);
+    return '—';
+  }
+
+  function render(){
+    const q = document.getElementById('f-search').value.trim().toLowerCase();
+    const src = document.getElementById('f-source').value;
+    const cat = document.getElementById('f-category').value;
+    const mfr = document.getElementById('f-manufacturer').value;
+    const status = document.getElementById('f-status').value;
+    const sort = document.getElementById('f-sort').value;
+
+    let filtered = listings.filter(l => {
+      if(src && l.source !== src) return false;
+      if(cat && l.category !== cat) return false;
+      if(mfr && l.manufacturer !== mfr) return false;
+      if(status && l.status !== status) return false;
+      if(q){
+        const hay = `${l.title} ${l.description||''} ${l.ref_id||''} ${l.source||''}`.toLowerCase();
+        if(!hay.includes(q)) return false;
+      }
+      return true;
+    });
+
+    filtered.sort((a,b) => {
+      switch(sort){
+        case 'price-asc': return (a.price_usd ?? Infinity) - (b.price_usd ?? Infinity);
+        case 'price-desc': return (b.price_usd ?? -1) - (a.price_usd ?? -1);
+        case 'hours-asc': return (a.hours ?? Infinity) - (b.hours ?? Infinity);
+        case 'year-desc': return (b.year ?? 0) - (a.year ?? 0);
+        default: return parseInt(b.ref_id) - parseInt(a.ref_id);
+      }
+    });
+
+    document.getElementById('result-count').textContent = `${filtered.length} of ${listings.length}`;
+
+    if(filtered.length === 0){
+      listingsEl.innerHTML = '';
+      emptyEl.hidden = false;
+      return;
+    }
+    emptyEl.hidden = true;
+
+    listingsEl.innerHTML = filtered.map(l => `
+      <a class="row" href="${esc(l.url)}" target="_blank" rel="noopener">
+        <span class="badge ${badgeClass(l.status)}">${esc(l.status || '')}</span>
+        <span class="machine">
+          <span class="src ${l.source !== 'HDDBroker' ? 'manual' : ''}">${esc(l.source)}</span>
+          <span class="title">${esc(l.title)}</span>
+          <span class="desc">${esc(l.description || '')}</span>
+        </span>
+        <span class="cat-pill">${esc(l.category)}</span>
+        <span class="hours">${hoursOrAdded(l)}</span>
+        <span class="price ${l.status === 'Price Reduced' ? 'reduced' : ''}">${esc(l.price_display)}</span>
+        <span class="go">↗</span>
+      </a>
+    `).join('');
+  }
+
+  ['f-search','f-source','f-category','f-manufacturer','f-status','f-sort'].forEach(id => {
+    document.getElementById(id).addEventListener('input', render);
+    document.getElementById(id).addEventListener('change', render);
+  });
+
+  render();
+}
+init();
+</script>
+</body>
+</html>

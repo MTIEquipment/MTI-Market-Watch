@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MTI Equipment — Market Watch (Preview)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#17191a; --panel:#21262a; --panel-raised:#262c30; --line:#383f43;
+    --paper:#e9e4d8; --paper-dim:#a39c8f;
+    --yellow:#f2b705; --yellow-dim:#8a6d0e; --rust:#c1441e; --rust-dim:#7a3016;
+    --font-display:'Oswald',sans-serif; --font-body:'IBM Plex Sans',sans-serif; --font-mono:'IBM Plex Mono',monospace;
+    --radius:3px;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0; background:var(--bg); color:var(--paper);
+    font-family:var(--font-body); font-size:15px; line-height:1.5;
+    background-image:
+      radial-gradient(ellipse at top left, rgba(242,183,5,0.05), transparent 45%),
+      radial-gradient(ellipse at bottom right, rgba(193,68,30,0.05), transparent 50%);
+  }
+  a{color:var(--yellow);}
+  ::selection{background:var(--yellow); color:#17191a;}
+  :focus-visible{outline:2px solid var(--yellow); outline-offset:2px;}
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important;} }
+
+  .wrap{max-width:1180px; margin:0 auto; padding:28px 20px 80px;}
+
+  /* ---- masthead ---- */
+  .masthead{
+    display:flex; justify-content:space-between; align-items:flex-end; gap:20px;
+    border-bottom:3px solid var(--paper); padding-bottom:16px; margin-bottom:22px;
+    flex-wrap:wrap;
+  }
+  .masthead h1{
+    font-family:var(--font-display); font-weight:700; text-transform:uppercase;
+    letter-spacing:0.02em; font-size:clamp(28px,5vw,44px); margin:0; line-height:1;
+  }
+  .masthead h1 span{color:var(--yellow);}
+  .masthead .sub{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.12em;
+    text-transform:uppercase; color:var(--paper-dim); margin-top:6px;
+  }
+  .synced{
+    font-family:var(--font-mono); font-size:12px; text-align:right; color:var(--paper-dim);
+    border:1px solid var(--line); border-radius:var(--radius); padding:8px 12px;
+    background:var(--panel);
+  }
+  .synced strong{display:block; color:var(--paper); font-size:13px; letter-spacing:0.03em;}
+
+  /* ---- stat plates ---- */
+  .stats{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px;
+  }
+  .plate{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:14px 16px; box-shadow:inset 0 0 0 1px rgba(255,255,255,0.02), inset 0 2px 4px rgba(0,0,0,0.35);
+    position:relative;
+  }
+  .plate::before{
+    content:""; position:absolute; top:6px; right:6px; width:5px; height:5px;
+    border-radius:50%; background:var(--line); box-shadow:0 0 0 1px rgba(0,0,0,0.4) inset;
+  }
+  .plate .num{font-family:var(--font-mono); font-weight:600; font-size:30px; line-height:1; color:var(--paper);}
+  .plate .num.accent{color:var(--yellow);}
+  .plate .num.warn{color:var(--rust);}
+  .plate .label{
+    font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase;
+    letter-spacing:0.1em; color:var(--paper-dim); margin-top:6px;
+  }
+  .plate .fallback-tag{
+    font-size:9.5px; color:var(--paper-dim); font-style:italic; margin-top:2px; display:block;
+  }
+
+  /* ---- filters ---- */
+  .filters{
+    display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:16px;
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:10px;
+  }
+  .filters select, .filters input[type="search"]{
+    font-family:var(--font-body); font-size:13px; color:var(--paper);
+    background:var(--bg); border:1px solid var(--line); border-radius:var(--radius);
+    padding:8px 10px; min-width:0;
+  }
+  .filters input[type="search"]{flex:1 1 200px;}
+  .filters select{flex:0 1 auto;}
+  .filters select:focus, .filters input:focus{border-color:var(--yellow);}
+  .filters .count{
+    margin-left:auto; font-family:var(--font-mono); font-size:12px; color:var(--paper-dim);
+    white-space:nowrap;
+  }
+
+  /* ---- ledger ---- */
+  .ledger{border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; margin-bottom:32px;}
+  .ledger-head, .row{
+    display:grid;
+    grid-template-columns: 96px 1.15fr 140px 90px 130px 28px;
+    gap:10px; align-items:center; padding:11px 14px;
+  }
+  .ledger-head{
+    background:var(--panel-raised); font-family:var(--font-mono); font-size:10.5px;
+    text-transform:uppercase; letter-spacing:0.08em; color:var(--paper-dim);
+    border-bottom:1px solid var(--line);
+  }
+  .row{
+    background:var(--panel); border-bottom:1px solid var(--line); text-decoration:none; color:inherit;
+  }
+  .row:last-child{border-bottom:none;}
+  .row:hover{background:var(--panel-raised);}
+  .badge{
+    font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:0.06em;
+    padding:3px 7px; border-radius:2px; text-align:center; white-space:nowrap; justify-self:start;
+    border:1px solid transparent;
+  }
+  .badge.new{color:var(--yellow); border-color:var(--yellow-dim); background:rgba(242,183,5,0.08);}
+  .badge.reduced{color:#ff8a65; border-color:var(--rust-dim); background:rgba(193,68,30,0.12);}
+  .badge.updated{color:var(--paper-dim); border-color:var(--line);}
+  .badge.none{visibility:hidden;}
+  .machine .src{
+    font-family:var(--font-mono); font-size:9.5px; text-transform:uppercase; letter-spacing:0.09em;
+    color:var(--paper-dim); display:block; margin-bottom:2px;
+  }
+  .machine .src.manual{color:var(--yellow);}
+  .machine .title{font-weight:500; color:var(--paper); display:block;}
+  .machine .desc{font-size:12px; color:var(--paper-dim); display:block; margin-top:2px;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .machine .ref{font-family:var(--font-mono); font-size:10.5px; color:var(--paper-dim);}
+  .cat-pill{
+    font-family:var(--font-mono); font-size:10.5px; color:var(--paper-dim);
+    border:1px solid var(--line); border-radius:12px; padding:3px 9px; text-align:center;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .hours{font-family:var(--font-mono); font-size:13px; text-align:right; color:var(--paper-dim);}
+  .price{font-family:var(--font-mono); font-size:13.5px; font-weight:600; text-align:right;}
+  .price.reduced{color:#ff8a65;}
+  .go{color:var(--paper-dim); text-align:center;}
+  .row:hover .go{color:var(--yellow);}
+
+  #empty-state{padding:40px 20px; text-align:center; color:var(--paper-dim); font-family:var(--font-mono); font-size:13px;}
+  #empty-state strong{display:block; color:var(--paper); font-family:var(--font-body); font-size:16px; margin-bottom:6px;}
+
+  /* ---- other marketplaces ---- */
+  .other-sources{
+    border:1px dashed var(--line); border-radius:var(--radius); padding:18px 20px; margin-bottom:20px;
+  }
+  .other-sources h2{
+    font-family:var(--font-display); text-transform:uppercase; letter-spacing:0.04em;
+    font-size:15px; margin:0 0 4px;
+  }
+  .other-sources > p{color:var(--paper-dim); font-size:13px; margin:0 0 14px; max-width:640px;}
+  .source-cards{display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:12px;}
+  .source-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px;
+  }
+  .source-card h3{font-size:14px; margin:0 0 6px;}
+  .source-card p{font-size:12.5px; color:var(--paper-dim); margin:0 0 10px;}
+  .source-card a.btn{
+    display:inline-block; font-family:var(--font-mono); font-size:11.5px; text-transform:uppercase;
+    letter-spacing:0.06em; color:var(--bg); background:var(--yellow); padding:7px 12px;
+    border-radius:2px; text-decoration:none; font-weight:600;
+  }
+
+  footer{font-family:var(--font-mono); font-size:11px; color:var(--paper-dim); text-align:center; margin-top:10px;}
+
+  /* ---- mobile ---- */
+  @media (max-width:760px){
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .ledger-head{display:none;}
+    .row{
+      grid-template-columns:1fr; padding:12px 14px; gap:6px; position:relative;
+    }
+    .badge{position:absolute; top:12px; right:14px; justify-self:end;}
+    .machine{padding-right:70px;}
+    .cat-pill{justify-self:start;}
+    .hours, .price{text-align:left;}
+    .price{font-size:16px;}
+    .go{display:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div>
+      <h1>MTI <span>Equipment</span></h1>
+      <div class="sub">Market Watch — Trenchless &amp; Directional Drilling Inventory</div>
+    </div>
+    <div class="synced">
+      <strong id="synced-time">—</strong>
+      LAST SYNCED
+    </div>
+  </header>
+
+  <section class="stats" aria-label="Summary">
+    <div class="plate">
+      <div class="num" id="stat-total">—</div>
+      <div class="label">Tracked Listings</div>
+    </div>
+    <div class="plate">
+      <div class="num accent" id="stat-new">—</div>
+      <div class="label">New<span class="fallback-tag" id="new-fallback-tag" hidden>Per HDDBroker tag, first run</span></div>
+    </div>
+    <div class="plate">
+      <div class="num warn" id="stat-drops">—</div>
+      <div class="label">Price Drops<span class="fallback-tag" id="drop-fallback-tag" hidden>Per HDDBroker tag, first run</span></div>
+    </div>
+    <div class="plate">
+      <div class="num" id="stat-removed">—</div>
+      <div class="label">Sold / Removed</div>
+    </div>
+  </section>
+
+  <section class="filters" aria-label="Filter listings">
+    <input type="search" id="f-search" placeholder="Search make, model, ref #…" aria-label="Search listings">
+    <select id="f-source" aria-label="Filter by source"><option value="">All sources</option></select>
+    <select id="f-category" aria-label="Filter by category"><option value="">All categories</option></select>
+    <select id="f-manufacturer" aria-label="Filter by manufacturer"><option value="">All manufacturers</option></select>
+    <select id="f-status" aria-label="Filter by status">
+      <option value="">Any status</option>
+      <option value="New">New</option>
+      <option value="Price Reduced">Price Reduced</option>
+      <option value="Updated">Updated</option>
+    </select>
+    <select id="f-sort" aria-label="Sort listings">
+      <option value="ref-desc">Newest listing</option>
+      <option value="price-asc">Price: low to high</option>
+      <option value="price-desc">Price: high to low</option>
+      <option value="hours-asc">Hours: low to high</option>
+      <option value="year-desc">Year: newest first</option>
+    </select>
+    <span class="count" id="result-count"></span>
+  </section>
+
+  <main class="ledger" id="ledger">
+    <div class="ledger-head">
+      <div>Status</div><div>Machine</div><div>Category</div><div style="text-align:right;">Hours</div>
+      <div style="text-align:right;">Price</div><div></div>
+    </div>
+    <div id="listings"></div>
+    <div id="empty-state" hidden>
+      <strong>Nothing matches those filters.</strong>
+      Try clearing the search box or switching category back to "All categories."
+    </div>
+  </main>
+
+  <section class="other-sources">
+    <h2>Other Marketplaces</h2>
+    <p>MachineryTrader and EquipmentTrader both block automated scraping in their terms of use, so
+       nothing visits those sites on its own. Two ways to still see their inventory here: set up
+       their native alerts (they'll email or text you), or when you spot something worth tracking
+       while browsing yourself, add it with the tool below — those show up tagged
+       "<strong>MachineryTrader</strong>" / "<strong>EquipmentTrader</strong>" right in the list above.</p>
+    <div class="source-cards">
+      <div class="source-card">
+        <h3>MachineryTrader.com</h3>
+        <p>Log in → click your account name → <strong>Alerts For New Listings</strong>. Set year,
+           hours, price and distance ranges, or use <strong>Save This Search</strong> /
+           <strong>Watch List</strong> for price-drop pings on items you're already tracking.</p>
+        <a class="btn" href="https://www.machinerytrader.com/listings/search?keywords=directional+drill" target="_blank" rel="noopener">Open Search ↗</a>
+      </div>
+      <div class="source-card">
+        <h3>EquipmentTrader.com</h3>
+        <p>Their price-alert toggle lives right on the search results page — turn it on for any
+           saved search and you'll be notified as matching inventory comes in.</p>
+        <a class="btn" href="https://www.equipmenttrader.com/advanced-search" target="_blank" rel="noopener">Open Search ↗</a>
+      </div>
+      <div class="source-card">
+        <h3>Add one you found</h3>
+        <p>Spotted something on either site worth tracking? Fill in a quick form and paste the
+           result into <code>data/manual-listings.json</code> — it'll appear right in the list above.</p>
+        <a class="btn" href="add-listing.html" target="_blank" rel="noopener">Add a Listing ↗</a> <span style="font-size:10.5px; color:var(--paper-dim); display:block; margin-top:6px;">(its own file in the project download)</span>
+      </div>
+    </div>
+  </section>
+
+  <footer>MTI Equipment internal tool · HDDBroker.com data scraped once daily, MachineryTrader/EquipmentTrader entries added by hand · for internal market monitoring only, not for redistribution</footer>
+
+</div>
+
+<script>
+function normalizeManual(m){
+  return {
+    ref_id: m.ref_id || null,
+    year: m.year || null,
+    manufacturer: m.manufacturer || null,
+    model: m.model || null,
+    title: m.title || 'Untitled listing',
+    category: m.category || 'Uncategorized',
+    description: m.description || '',
+    hours: m.hours || null,
+    price_usd: m.price_usd || null,
+    price_display: m.price_display || 'See listing',
+    status: m.status || null,
+    url: m.url || '#',
+    source: m.source || 'Other',
+    added_date: m.added_date || null,
+  };
+}
+
+async function init(){
+  const listingsEl = document.getElementById('listings');
+  const emptyEl = document.getElementById('empty-state');
+  // PREVIEW BUILD: data baked in directly (including two clearly-labeled
+  // example manual entries) so this opens standalone, no server needed.
+  // The real deployed site fetches data/latest.json + data/manual-listings.json
+  // live instead -- see the README.
+  const data = {"last_updated": "2026-08-18T00:00:00+00:00", "source": "hddbroker.com", "note": "Seed data gathered manually while setting this tracker up on 2026-08-18, covering the HDD Drills, Auger Boring / Tunnelling, and Vacuum Systems categories. The scheduled scraper replaces this with a full sweep of all tracked categories on its first run.", "categories_tracked": ["HDD Drills", "Trenchers", "Plows", "Electronics / Locators", "Auger Boring / Tunnelling", "Vacuum Systems", "Mud Mixing Systems / Tanks", "Mud Recycling Systems"], "total_listings": 30, "changes_since_last_run": {"new_ids": [], "removed_ids": [], "price_drop_ids": [], "price_increase_ids": []}, "listings": [{"ref_id": "40688", "year": 2012, "manufacturer": "Ditch Witch", "model": "JT4020 Mach 1", "title": "2012 Ditch Witch JT4020 Mach 1", "category": "HDD Drills", "description": "Overseas Enclosed Cab Drill Rig comes with a Full Rack of Drill Pipe! 3,670 hours.", "hours": 3670, "price_usd": 120000, "price_display": "$120,000 USD", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40688"}, {"ref_id": "40687", "year": 2024, "manufacturer": "Barbco", "model": "Tribor36", "title": "2024 Barbco Tribor36", "category": "Auger Boring / Tunnelling", "description": "Complete Auger Boring, Guided Boring, Directional Drilling Machine Package! 278 hours.", "hours": 278, "price_usd": 796000, "price_display": "$796,000 USD", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40687"}, {"ref_id": "40686", "year": 2016, "manufacturer": "McLaughlin", "model": "VX30-1200", "title": "2016 McLaughlin VX30-1200", "category": "Vacuum Systems", "description": "Vacuum Trailer! 3,277 hours.", "hours": 3277, "price_usd": 67000, "price_display": "$67,000 USD", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40686"}, {"ref_id": "40677", "year": 2021, "manufacturer": "Vermeer", "model": "D40x55 S3", "title": "2021 Vermeer D40x55 S3", "category": "HDD Drills", "description": "15 Foot Rack Machine! John Deere 140HP! Aplex Pump!", "hours": null, "price_usd": null, "price_display": "Call for pricing", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40677"}, {"ref_id": "40676", "year": 2021, "manufacturer": "Ditch Witch", "model": "JT28", "title": "2021 Ditch Witch JT28", "category": "HDD Drills", "description": "Rubber Tracks! FMC Pump! 130 HP Cummins Diesel Engine! 1,022 hours.", "hours": 1022, "price_usd": null, "price_display": "Call for pricing", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40676"}, {"ref_id": "40675", "year": 2024, "manufacturer": "Ditch Witch", "model": "JT10", "title": "2024 Ditch Witch JT10", "category": "HDD Drills", "description": "Deutz 49 HP Engine! FMC Pump! 1,362 hours.", "hours": 1362, "price_usd": null, "price_display": "Call for pricing", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40675"}, {"ref_id": "40670", "year": 2024, "manufacturer": "Vermeer", "model": "D10x15 S3", "title": "2024 Vermeer D10x15 S3", "category": "HDD Drills", "description": "Comes with (50) pieces of Drill Pipe! 2,331 hours.", "hours": 2331, "price_usd": 120000, "price_display": "$120,000 USD", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40670"}, {"ref_id": "40669", "year": 2025, "manufacturer": "Vermeer", "model": "D20x22 S3", "title": "2025 Vermeer D20x22 S3", "category": "HDD Drills", "description": "Comes with (40) Drill Pipe! Package items Available! 2,208 hours.", "hours": 2208, "price_usd": 207000, "price_display": "$207,000 USD", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40669"}, {"ref_id": "40668", "year": 2014, "manufacturer": "Vermeer", "model": "D20x22 Series II", "title": "2014 Vermeer D20x22 Series II", "category": "HDD Drills", "description": "This machine comes with Drill Pipe! 4,763 hours.", "hours": 4763, "price_usd": 59900, "price_display": "$59,900 USD", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40668"}, {"ref_id": "40667", "year": 2018, "manufacturer": "Ditch Witch", "model": "JT30", "title": "2018 Ditch Witch JT30", "category": "HDD Drills", "description": "Comes with Directional Drill, Equipment Trailer and a Flat Bed Truck!", "hours": null, "price_usd": 201000, "price_display": "$201,000 USD", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40667"}, {"ref_id": "40663", "year": 2015, "manufacturer": "Ditch Witch", "model": "JT30 All Terrain", "title": "2015 Ditch Witch JT30 All Terrain", "category": "HDD Drills", "description": "Enclosed Cab Drill Rig comes with 750 feet of All Terrain Pipe in (1) Tall and (2) Short Boxes! 2,200 hours.", "hours": 2200, "price_usd": 212000, "price_display": "$212,000 USD", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40663"}, {"ref_id": "40660", "year": 2012, "manufacturer": "Ditch Witch", "model": "JT3020 Mach 1", "title": "2012 Ditch Witch JT3020 Mach 1", "category": "HDD Drills", "description": "500 Feet of Drill Pipe is included! 1,528 hours.", "hours": 1528, "price_usd": 179000, "price_display": "$179,000 USD", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40660"}, {"ref_id": "40658", "year": 2021, "manufacturer": "Vermeer", "model": "D23x30 S3", "title": "2021 Vermeer D23x30 S3", "category": "HDD Drills", "description": "Recent Service! 2,500 hours.", "hours": 2500, "price_usd": 185000, "price_display": "$185,000 USD", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40658"}, {"ref_id": "40657", "year": 2026, "manufacturer": "Vermeer", "model": "D24G4", "title": "2026 Vermeer D24G4", "category": "HDD Drills", "description": "109 Hours Only! 109 hours.", "hours": 109, "price_usd": 293000, "price_display": "$293,000 USD", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40657"}, {"ref_id": "40655", "year": 2020, "manufacturer": "Ditch Witch", "model": "JT24", "title": "2020 Ditch Witch JT24", "category": "HDD Drills", "description": "Comes with (40) Drill Pipe! 1,029 hours.", "hours": 1029, "price_usd": 189000, "price_display": "$189,000 USD", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40655"}, {"ref_id": "40651", "year": 2020, "manufacturer": "Vermeer", "model": "D20x22 S3", "title": "2020 Vermeer D20x22 S3", "category": "HDD Drills", "description": "(40) Drill Rods are included! Deutz 74 HP! FMC Pump! Rubber Tracks! 1,979 hours.", "hours": 1979, "price_usd": 162000, "price_display": "$162,000 USD", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40651"}, {"ref_id": "40649", "year": 2014, "manufacturer": "Ditch Witch", "model": "JT20", "title": "2014 Ditch Witch JT20", "category": "HDD Drills", "description": "Comes with Equipment Trailer, Locating Equipment and Drill Pipe! 3,120 hours.", "hours": 3120, "price_usd": 114000, "price_display": "$114,000 USD", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40649"}, {"ref_id": "40635", "year": 2016, "manufacturer": "Vermeer", "model": "D20x22 S3", "title": "2016 Vermeer D20x22 S3", "category": "HDD Drills", "description": "Comes with a Full Rack of Drill Pipe! 3,339 hours.", "hours": 3339, "price_usd": 84900, "price_display": "$84,900 USD", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40635"}, {"ref_id": "40634", "year": 2015, "manufacturer": "Ditch Witch", "model": "JT20", "title": "2015 Ditch Witch JT20", "category": "HDD Drills", "description": "Includes a Full Rack of Pipe! 5,246 hours.", "hours": 5246, "price_usd": 58900, "price_display": "$58,900 USD", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40634"}, {"ref_id": "40633", "year": 2018, "manufacturer": "Ditch Witch", "model": "JT30", "title": "2018 Ditch Witch JT30", "category": "HDD Drills", "description": "Enclosed Cab Drill Rig comes with Drill Pipe!", "hours": null, "price_usd": 129000, "price_display": "$129,000 USD", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40633"}, {"ref_id": "40631", "year": 2019, "manufacturer": "Vermeer", "model": "D23x30 S3", "title": "2019 Vermeer D23x30 S3", "category": "HDD Drills", "description": "Comes with (40) used 2.375 inch Firestick Drill Rods! 3,114 hours.", "hours": 3114, "price_usd": 125000, "price_display": "$125,000 USD", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40631"}, {"ref_id": "40630", "year": 2014, "manufacturer": "Vermeer", "model": "D24x40 Series II", "title": "2014 Vermeer D24x40 Series II", "category": "HDD Drills", "description": "(50) Joints (500 feet) of Drill Pipe is included! 4,050 hours.", "hours": 4050, "price_usd": 98000, "price_display": "$98,000 USD", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40630"}, {"ref_id": "40602", "year": 2017, "manufacturer": "Vermeer", "model": "D24x40 S3", "title": "2017 Vermeer D24x40 S3", "category": "HDD Drills", "description": "Comes with Drill, Mud Mixing System, Truck, and Trailer! 4,314 hours.", "hours": 4314, "price_usd": 404000, "price_display": "$404,000 USD o.b.o.", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40602"}, {"ref_id": "40601", "year": 2023, "manufacturer": "Ditch Witch", "model": "AT32 All Terrain", "title": "2023 Ditch Witch AT32 All Terrain", "category": "HDD Drills", "description": "Comes with (1) Tall Basket with (40) AT Drill Rods! 4,792 hours.", "hours": 4792, "price_usd": 235000, "price_display": "$235,000 USD", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40601"}, {"ref_id": "40594", "year": 2021, "manufacturer": "Universal", "model": "UNI 25", "title": "2021 Universal UNI 25", "category": "HDD Drills", "description": "Comes with 500 feet of Drill Pipe! 905 hours.", "hours": 905, "price_usd": 114000, "price_display": "$114,000 USD", "status": "New", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40594"}, {"ref_id": "40311", "year": 2014, "manufacturer": "Ditch Witch", "model": "JT60", "title": "2014 Ditch Witch JT60", "category": "HDD Drills", "description": "Enclosed Cab Drill Rig includes Drill Pipe! 3,344 hours.", "hours": 3344, "price_usd": 180000, "price_display": "$180,000 USD", "status": "Price Reduced", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40311"}, {"ref_id": "40243", "year": 2026, "manufacturer": "Ditch Witch", "model": "JT21", "title": "2026 Ditch Witch JT21", "category": "HDD Drills", "description": "60 Hours! Pipe, Tooling, Mixer and Trailer! Under Warranty, Field-Ready, Complete Drill Package! 60 hours.", "hours": 60, "price_usd": 305000, "price_display": "$305,000 USD", "status": null, "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40243"}, {"ref_id": "40239", "year": 2018, "manufacturer": "Universal", "model": "UNI 45x65", "title": "2018 Universal UNI 45x65", "category": "HDD Drills", "description": "Machine Only! 5,354 hours.", "hours": 5354, "price_usd": 16500, "price_display": "$16,500 USD", "status": null, "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=40239"}, {"ref_id": "38989", "year": 2020, "manufacturer": "Vermeer", "model": "D23x30DR S3", "title": "2020 Vermeer D23x30DR S3", "category": "HDD Drills", "description": "(29) Pieces of Rock Drill Pipe are included! 2,509 hours.", "hours": 2509, "price_usd": 199000, "price_display": "$199,000 USD", "status": null, "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=38989"}, {"ref_id": "38138", "year": 2018, "manufacturer": "Vermeer", "model": "D8x12", "title": "2018 Vermeer D8x12", "category": "HDD Drills", "description": "Comes with Drill Pipe, Mud Mixing System and Equipment Trailer! 3,943 hours.", "hours": 3943, "price_usd": 53500, "price_display": "$53,500 USD o.b.o.", "status": "Updated", "url": "https://www.hddbroker.com/en/listings/viewlisting.php?id=38138"}]};
+  const auto = (data.listings || []).map(l => ({...l, source: 'HDDBroker'}));
+  const manual = ([{"source": "MachineryTrader", "title": "2018 Ditch Witch JT30 (example \u2014 add your own via the Add a Listing tool)", "manufacturer": "Ditch Witch", "category": "HDD Drills", "price_display": "$125,000", "url": "https://www.machinerytrader.com/listings/search?keywords=directional+drill", "notes": "", "added_date": "2026-08-18"}, {"source": "EquipmentTrader", "title": "2020 Vermeer D20x22 S3 (example \u2014 add your own via the Add a Listing tool)", "manufacturer": "Vermeer", "category": "HDD Drills", "price_display": "Call for pricing", "url": "https://www.equipmenttrader.com/advanced-search", "notes": "", "added_date": "2026-08-18"}]).map(normalizeManual);
+
+  const listings = [...auto, ...manual];
+  const changes = data.changes_since_last_run || {new_ids:[], removed_ids:[], price_drop_ids:[], price_increase_ids:[]};
+
+  // ---- header stats ----
+  document.getElementById('stat-total').textContent = listings.length;
+
+  const syncedDate = data.last_updated ? new Date(data.last_updated) : null;
+  document.getElementById('synced-time').textContent = syncedDate
+    ? syncedDate.toLocaleString(undefined, {dateStyle:'medium', timeStyle:'short'})
+    : 'Unknown';
+
+  const usingFallback = changes.new_ids.length === 0 && changes.price_drop_ids.length === 0;
+  const newCount = changes.new_ids.length || listings.filter(l => l.status === 'New').length;
+  const dropCount = changes.price_drop_ids.length || listings.filter(l => l.status === 'Price Reduced').length;
+  document.getElementById('stat-new').textContent = newCount;
+  document.getElementById('stat-drops').textContent = dropCount;
+  document.getElementById('stat-removed').textContent = changes.removed_ids.length;
+  document.getElementById('new-fallback-tag').hidden = !usingFallback;
+  document.getElementById('drop-fallback-tag').hidden = !usingFallback;
+
+  // ---- populate filter dropdowns from the data itself ----
+  const sources = [...new Set(listings.map(l => l.source).filter(Boolean))].sort();
+  const categories = [...new Set(listings.map(l => l.category).filter(Boolean))].sort();
+  const manufacturers = [...new Set(listings.map(l => l.manufacturer).filter(Boolean))].sort();
+  const srcSel = document.getElementById('f-source');
+  const catSel = document.getElementById('f-category');
+  const mfrSel = document.getElementById('f-manufacturer');
+  sources.forEach(s => srcSel.insertAdjacentHTML('beforeend', `<option value="${esc(s)}">${esc(s)}</option>`));
+  categories.forEach(c => catSel.insertAdjacentHTML('beforeend', `<option value="${esc(c)}">${esc(c)}</option>`));
+  manufacturers.forEach(m => mfrSel.insertAdjacentHTML('beforeend', `<option value="${esc(m)}">${esc(m)}</option>`));
+
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function badgeClass(status){
+    if(status === 'New') return 'new';
+    if(status === 'Price Reduced') return 'reduced';
+    if(status === 'Updated') return 'updated';
+    return 'none';
+  }
+
+  function hoursOrAdded(l){
+    if(l.hours != null) return l.hours.toLocaleString()+' hrs';
+    if(l.source !== 'HDDBroker' && l.added_date) return 'Added '+esc(l.added_date);
+    return '—';
+  }
+
+  function render(){
+    const q = document.getElementById('f-search').value.trim().toLowerCase();
+    const src = document.getElementById('f-source').value;
+    const cat = document.getElementById('f-category').value;
+    const mfr = document.getElementById('f-manufacturer').value;
+    const status = document.getElementById('f-status').value;
+    const sort = document.getElementById('f-sort').value;
+
+    let filtered = listings.filter(l => {
+      if(src && l.source !== src) return false;
+      if(cat && l.category !== cat) return false;
+      if(mfr && l.manufacturer !== mfr) return false;
+      if(status && l.status !== status) return false;
+      if(q){
+        const hay = `${l.title} ${l.description||''} ${l.ref_id||''} ${l.source||''}`.toLowerCase();
+        if(!hay.includes(q)) return false;
+      }
+      return true;
+    });
+
+    filtered.sort((a,b) => {
+      switch(sort){
+        case 'price-asc': return (a.price_usd ?? Infinity) - (b.price_usd ?? Infinity);
+        case 'price-desc': return (b.price_usd ?? -1) - (a.price_usd ?? -1);
+        case 'hours-asc': return (a.hours ?? Infinity) - (b.hours ?? Infinity);
+        case 'year-desc': return (b.year ?? 0) - (a.year ?? 0);
+        default: return parseInt(b.ref_id) - parseInt(a.ref_id);
+      }
+    });
+
+    document.getElementById('result-count').textContent = `${filtered.length} of ${listings.length}`;
+
+    if(filtered.length === 0){
+      listingsEl.innerHTML = '';
+      emptyEl.hidden = false;
+      return;
+    }
+    emptyEl.hidden = true;
+
+    listingsEl.innerHTML = filtered.map(l => `
+      <a class="row" href="${esc(l.url)}" target="_blank" rel="noopener">
+        <span class="badge ${badgeClass(l.status)}">${esc(l.status || '')}</span>
+        <span class="machine">
+          <span class="src ${l.source !== 'HDDBroker' ? 'manual' : ''}">${esc(l.source)}</span>
+          <span class="title">${esc(l.title)}</span>
+          <span class="desc">${esc(l.description || '')}</span>
+        </span>
+        <span class="cat-pill">${esc(l.category)}</span>
+        <span class="hours">${hoursOrAdded(l)}</span>
+        <span class="price ${l.status === 'Price Reduced' ? 'reduced' : ''}">${esc(l.price_display)}</span>
+        <span class="go">↗</span>
+      </a>
+    `).join('');
+  }
+
+  ['f-search','f-source','f-category','f-manufacturer','f-status','f-sort'].forEach(id => {
+    document.getElementById(id).addEventListener('input', render);
+    document.getElementById(id).addEventListener('change', render);
+  });
+
+  render();
+}
+init();
+</script>
+</body>
+</html>
