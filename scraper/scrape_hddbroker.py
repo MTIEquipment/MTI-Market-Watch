@@ -229,6 +229,14 @@ def scrape_category(session: requests.Session, category_id: int, category_name: 
             total = get_total_listings(html)
             print(f"  {category_name}: {total} listings found")
 
+        # TEMPORARY DIAGNOSTIC: print exactly what the live page's text looks
+        # like so we can see why parse_listings_from_text() isn't matching it.
+        # Safe to delete once the real fix is in -- search for "TEMPORARY DIAGNOSTIC".
+        if category_id == 1 and page == 1:
+            print("=== DEBUG DUMP START (HDD Drills, page 1, first 6000 chars) ===")
+            print(text[:6000])
+            print("=== DEBUG DUMP END ===")
+
         page_listings = parse_listings_from_text(text, category_name)
         if not page_listings:
             break
