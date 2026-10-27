@@ -1,0 +1,22 @@
+{
+  "last_updated": "2026-10-27T15:34:49.872339+00:00",
+  "source": "hddbroker.com",
+  "categories_tracked": [
+    "HDD Drills",
+    "Trenchers",
+    "Plows",
+    "Electronics / Locators",
+    "Auger Boring / Tunnelling",
+    "Vacuum Systems",
+    "Mud Mixing Systems / Tanks",
+    "Mud Recycling Systems"
+  ],
+  "total_listings": 0,
+  "changes_since_last_run": {
+    "new_ids": [],
+    "removed_ids": [],
+    "price_drop_ids": [],
+    "price_increase_ids": []
+  },
+  "listings": []
+}
